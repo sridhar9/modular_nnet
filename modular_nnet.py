@@ -18,15 +18,15 @@ def main ():
 
     batch_size = 10
     epochs = 25                 # This number of times we iterate on the whole training data.
-    sizes = [784,30,30,10]
-    eta = 3
+    sizes = [784,30,10]
+    eta = 0.001
     faster_net = FasterNetwork(sizes)
     st_time = time.time()
-    cost_list = faster_net.stochastic_gd(training_data, epochs, eta, batch_size)
+    cost_list = faster_net.stochastic_gd(training_data, epochs, eta, batch_size, test_data)
     end_time = time.time()
-    (success_pct, cost_) = faster_net.evaluate(test_data)
-    print ("success_pct="+str(success_pct) + " cost_test=" + str(cost_))
-    print ("Time in mins: "+ str((end_time - st_time)/60*1.0))
+    #(success_pct, cost_) = faster_net.evaluate(test_data)
+    #print ("success_pct="+str(success_pct) + " cost_test=" + str(cost_))
+    #print ("Time in mins: "+ str((end_time - st_time)/60*1.0))
     Utils.plot_graph(cost_list)
 
 
@@ -48,7 +48,7 @@ class FasterNetwork:
         self.act_func = "sigmoid"
         self.cost_func = "cross_entropy"
 
-    def stochastic_gd(self, training_data, epochs, eta, mini_batch_size):
+    def stochastic_gd(self, training_data, epochs, eta, mini_batch_size, test_data=None):
         # This function is responsible for stochasticness and mini-batches.
         cost_list = []
         for iter in range (epochs):
@@ -58,6 +58,9 @@ class FasterNetwork:
             for mini_batch in mini_batches:
                 cost_minibatch += self.update_minibatch(mini_batch, eta)
             avg_cost_minibatch = (1.0*cost_minibatch)/len(training_data)
+            if (test_data):
+                count, total, avg_cost = self.evaluate(test_data)
+                print ("count: "+str(count)+" total: "+str(total)+" avg_cost: "+str(avg_cost))
             cost_list.append(avg_cost_minibatch)
         return cost_list
 
@@ -73,7 +76,7 @@ class FasterNetwork:
 
         nb, nw = self.backward_prop_vec(train_y, Zall, Aall)
         # update b, w
-        self.biases = [bv - ((1.0 * eta)*nbv)/m for bv, nbv in zip (self.biases, nb)]           # divide by m because it was not done in backprop_step.
+        self.biases = [nb_temp - ((1.0*eta)*nbv)/m for nb_temp, nbv in zip (self.biases, nb)]
         self.weights = [nw_temp - ((1.0*eta)*nwv)/m for nw_temp, nwv in zip (self.weights, nw)]
         return cost_minibatch
 
@@ -124,7 +127,7 @@ class FasterNetwork:
         for yc, y in zip(ycap_max_ind, y_max_ind):
             if (yc==y):
                 count+=1
-        return ((count*100.0)/test_x.shape[1], cost_*1.0/test_x.shape[1])
+        return (count, test_x.shape[1], cost_/test_x.shape[1])
 
 
     def gz(self,zl):
