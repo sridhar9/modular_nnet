@@ -39,7 +39,7 @@ class FasterNetwork:
     # 1. fully vectorized(whole mini-batch of training examples processed at once)
     # 2. stochostic gradient descent implemented
     # 3. fully modularized implementation
-    
+    # 4. cross-validation (CV) implemented.
     def __init__(self, sizes):
         self.num_layers = len(sizes)
         self.sizes = sizes
@@ -68,13 +68,13 @@ class FasterNetwork:
         train_x, train_y = Utils.vectorize_data(mini_batch)
                         # dim(train_x) = (nx, m) where nx => number of input units; m=> mini_batch_size
                         # dim(train_y) = (nL, m) | nL = units of output layer.
-
+        m = train_x.shape[1]
         Zall, Aall, cost_minibatch = self.forward_prop_vec(train_x, train_y)
 
         nb, nw = self.backward_prop_vec(train_y, Zall, Aall)
         # update b, w
-        self.biases = [bv - ((1.0 * eta)/len(train_x))*nbv for bv, nbv in zip (self.biases, nb)]
-        self.weights = [nw - ((1.0*eta)/len(train_x)*nwv) for nw, nwv in zip (self.weights, nw)]
+        self.biases = [bv - ((1.0 * eta)*nbv) for bv, nbv in zip (self.biases, nb)]
+        self.weights = [nw_temp - ((1.0*eta)*nwv) for nw_temp, nwv in zip (self.weights, nw)]
         return cost_minibatch
 
     def forward_prop_vec(self, train_x, train_y):
@@ -162,7 +162,7 @@ class FasterNetwork:
     def get_daL(self, cost_func, aL, y):
         # daL => partial derivative of Cost w.r.t aL. So the dim are same as (aL)
         if (cost_func == "cross_entropy"):
-            daL = np.divide((aL - y), np.multiply(aL, (1.0 - aL)))
+            daL = np.divide((aL - y), aL*(1.0 - aL) +  pow(10,-9))
         return daL
 
 
