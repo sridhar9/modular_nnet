@@ -73,8 +73,8 @@ class FasterNetwork:
 
         nb, nw = self.backward_prop_vec(train_y, Zall, Aall)
         # update b, w
-        self.biases = [bv - ((1.0 * eta)*nbv) for bv, nbv in zip (self.biases, nb)]
-        self.weights = [nw_temp - ((1.0*eta)*nwv) for nw_temp, nwv in zip (self.weights, nw)]
+        self.biases = [bv - ((1.0 * eta)*nbv)/m for bv, nbv in zip (self.biases, nb)]           # divide by m because it was not done in backprop_step.
+        self.weights = [nw_temp - ((1.0*eta)*nwv)/m for nw_temp, nwv in zip (self.weights, nw)]
         return cost_minibatch
 
     def forward_prop_vec(self, train_x, train_y):
