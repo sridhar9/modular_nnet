@@ -11,7 +11,7 @@ def main ():
     path = "C:\\Users\\sridhar\\source\\repos\\ModularNnetwork\\ModularNnetwork\\data\\mnist.pkl.gz"
     training_data, val_data, test_data = Utils.get_data_wrapper(path)
 
-    # with below configuration, This code was able to achieve 95.5% test accuracy.
+    # with below configuration, This code was able to achieve 95.5% test accuracy on MNIST handwritten digits recog task.
     # batch_size= 10; epochs=50; sizes=[784,30,10]; eta=0.01;
     
     batch_size = 10
