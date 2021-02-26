@@ -19,14 +19,12 @@ def main ():
     batch_size = 10
     epochs = 25                 # This number of times we iterate on the whole training data.
     sizes = [784,30,10]
-    eta = 0.001
+    eta = 0.01
     faster_net = FasterNetwork(sizes)
     st_time = time.time()
     cost_list = faster_net.stochastic_gd(training_data, epochs, eta, batch_size, test_data)
     end_time = time.time()
-    #(success_pct, cost_) = faster_net.evaluate(test_data)
-    #print ("success_pct="+str(success_pct) + " cost_test=" + str(cost_))
-    #print ("Time in mins: "+ str((end_time - st_time)/60*1.0))
+
     Utils.plot_graph(cost_list)
 
 
@@ -44,7 +42,7 @@ class FasterNetwork:
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.zeros((i,1)) for i in self.sizes[1:]]         # This way of doing is called "list-comprehension"
-        self.weights = [np.random.rand(j,i) for i,j in zip(self.sizes[:-1], self.sizes[1:])]
+        self.weights = [np.random.randn(j,i)/np.sqrt(i) for i,j in zip(self.sizes[:-1], self.sizes[1:])]        # np.sqrt(i) => solves exploding/vanishing gradient descent problem.
         self.act_func = "sigmoid"
         self.cost_func = "cross_entropy"
 
